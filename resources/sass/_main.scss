@@ -1,0 +1,303 @@
+.v-list-item.v-item--active {
+  background: #fff;
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+}
+
+.v-menu__content.menuable__content__active {
+  border-radius: 16px;
+}
+
+#inspire .theme--dark.v-navigation-drawer {
+  background-color: #7620df;
+}
+
+#inspire .v-navigation-drawer {
+  overflow: inherit;
+}
+
+#inspire .v-navigation-drawer:before,
+#inspire .v-navigation-drawer:after,
+#inspire .v-list-item.v-item--active:before,
+#inspire .v-list-item.v-item--active:after {
+  content: "";
+  display: block;
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  right: -16px;
+  top: 0;
+  background: #7620df;
+  clip-path: polygon(0% 98%,
+      0% 98%,
+      0% 0%,
+      0% 0%,
+      100% 0%,
+      100% 0%,
+      82% 1%,
+      82% 1%,
+      78% 2%,
+      78% 2%,
+      73% 3%,
+      73% 3%,
+      68% 4%,
+      68% 4%,
+      63% 6%,
+      63% 6%,
+      58% 8%,
+      58% 8%,
+      54% 10%,
+      54% 10%,
+      50% 12%,
+      50% 12%,
+      47% 15%,
+      47% 15%,
+      43% 17%,
+      43% 17%,
+      40% 19%,
+      40% 19%,
+      36% 22%,
+      36% 22%,
+      33% 25%,
+      33% 25%,
+      30% 28%,
+      30% 28%,
+      27% 31%,
+      27% 31%,
+      24% 35%,
+      24% 35%,
+      21% 38%,
+      21% 38%,
+      18% 42%,
+      18% 42%,
+      15% 46%,
+      15% 46%,
+      13% 50%,
+      13% 50%,
+      10% 54%,
+      10% 54%,
+      8% 58%,
+      8% 58%,
+      6% 62%,
+      6% 62%,
+      5% 67%,
+      5% 67%,
+      3% 72%,
+      3% 72%,
+      2% 77%,
+      2% 77%,
+      1% 83%,
+      1% 83%);
+}
+
+#inspire .v-navigation-drawer:before {
+  right: -16px;
+  top: 0;
+}
+
+#inspire .v-navigation-drawer:after {
+  right: -16px;
+  top: calc(100% - 16px);
+  transform: rotateZ(-90deg);
+}
+
+#inspire .v-list-item.v-item--active:before,
+#inspire .v-list-item.v-item--active:after {
+  background: #fff;
+  opacity: 1;
+}
+
+#inspire .v-list-item.v-item--active:before {
+  left: calc(100% - 16px);
+  transform: rotateZ(180deg);
+  top: -15px;
+}
+
+#inspire .v-list-item.v-item--active:after {
+  left: calc(100% - 16px);
+  transform: rotateZ(-270deg);
+  bottom: -16px;
+  min-height: auto;
+  top: unset;
+}
+
+.status_wrp span {
+  padding: 5px;
+  word-break: break-all;
+}
+
+.status_wrp b,
+.sel_stat {
+  border-radius: 30px;
+  height: 22px;
+  min-width: 22px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: inherit;
+  outline-offset: 3px;
+  color: #fff;
+  margin-left: 3px;
+  margin-right: 4px;
+  padding: 0 3px;
+}
+
+.wrp__statuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.status_wrp {
+  display: flex;
+  align-items: center;
+  box-shadow: 0px 0px 9.5px 0.5px rgba(118, 32, 223, 0.2);
+  border-radius: 30px;
+}
+
+.border,
+.v-application--is-ltr .v-data-footer__select {
+  box-shadow: 0px 0px 9.5px 0.5px rgba(118, 32, 223, 0.2);
+  border-radius: 30px;
+  min-height: 56px;
+}
+
+.theme--light.v-text-field--outlined:not(.v-input--is-focused):not(.v-input--has-state)>.v-input__control>.v-input__slot fieldset {
+  border: none;
+  box-shadow: 0px 0px 9.5px 0.5px rgba(118, 32, 223, 0.2);
+}
+
+.wrp_users #usersradiogroup .v-expansion-panel {
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+.wrp_users .v-expansion-panel-header {
+  padding: 0;
+}
+
+.wrp_users .v-expansion-panel::before {
+  border: none;
+  box-shadow: 0px 0px 9.5px 0.5px rgba(118, 32, 223, 0.2);
+}
+
+.wrp_users .v-expansion-panels .v-expansion-panel:not(:first-child)::after,
+main .theme--light.v-data-table .v-data-footer,
+.theme--light.v-text-field>.v-input__control>.v-input__slot:before {
+  border: none;
+}
+
+.wrp_users .v-expansion-panel-content__wrap {
+  margin-top: 20px;
+}
+
+main .v-data-footer__pagination,
+.v-data-footer__icons-before,
+.v-data-footer__icons-after,
+.v-text-field__details {
+  // display: none;
+}
+
+.theme--light.v-data-table {
+  background-color: transparent;
+}
+
+.v-application--is-ltr .v-expansion-panel-header__icon {
+  margin: 0;
+}
+
+.wrp_group .v-input--selection-controls__input {
+  position: absolute;
+  /* left: 50%;
+    bottom: 4px;
+    z-index: 3;
+    transform: translateX(-50%); */
+  opacity: 0;
+}
+
+.wrp_group .v-input img {
+  border-radius: 22px;
+  border: 2px solid transparent;
+  width: 56px;
+  height: 56px;
+}
+
+.wrp_group .v-input.v-input--is-label-active img {
+  border: 2px dotted grey;
+}
+
+.v-data-table tbody tr {
+  display: table-row;
+  box-shadow: 0px 0px 9.5px 0.5px rgb(118 32 223 / 20%);
+  border: none;
+  border-radius: 22px;
+  margin-bottom: 10px;
+}
+
+main .theme--light.v-data-table>.v-data-table__wrapper>table>tbody>tr>td:not(.v-data-table__mobile-row),
+.theme--light.v-data-table>.v-data-table__wrapper>table>thead>tr>th {
+  border-bottom: none !important;
+  border: 1px solid transparent !important;
+}
+
+.blackborder .v-data-table>.v-data-table__wrapper>table {
+  width: initial;
+}
+
+.v-data-table tbody tr>.blackborder tr {
+  box-shadow: none;
+}
+
+.wrp_group+.v-data-footer {
+  // max-width: 111px;
+}
+
+#tablids .v-data-footer .v-data-footer__select {
+  margin-left: 1rem;
+}
+
+.v-data-table__wrapper {
+  padding: .3em;
+}
+
+// .theme--light.v-data-table>.v-data-table__wrapper>table>tbody>tr:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper),
+// .v-data-table__expanded.v-data-table__expanded__row.v-data-table__selected {
+//   background: #fff;
+//   border: 3px solid #7620df !important;
+// }
+.v-data-table__expanded.v-data-table__expanded__content {
+  border-radius: unset;
+  border-bottom-right-radius: 30px;
+  border-bottom-left-radius: 30px;
+}
+
+.v-data-table>.v-data-table__wrapper tbody tr.v-data-table__expanded__content {
+  box-shadow: inset 0 4px 8px -5px #7620df, inset 0 -4px 8px -5px #7620df;
+}
+
+#inspire .v-text-field__details {
+  display: none;
+}
+
+.border .v-application--is-ltr .v-data-footer__select .v-select {
+  margin: 13px 0 13px 24px !important;
+}
+
+.v-input.v-input--is-label-active.v-input--is-dirty.v-input--is-readonly.theme--light.v-text-field.v-text-field--is-booted {
+  margin-top: 0;
+  padding: 9px 0;
+}
+
+#maintable.v-data-table tr.v-data-table__expanded tr:hover {
+  border: none !important;
+  background: #fff;
+}
+
+.border .theme--light.v-icon {
+  color: #7620df;
+}
+
+.tablecalls table td {
+  font-size: 1rem !important;
+}
