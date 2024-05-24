@@ -444,7 +444,7 @@
                 id="tabimplids"
                 :headers="headers_leads"
                 item-key="id"
-                :items="leads"
+                :items="filteredLeads"
                 :footer-props="{
                   'items-per-page-options': [],
                   'items-per-page-text': '',
@@ -491,6 +491,43 @@
                             class="grey--text text-caption"
                           >
                             (+{{ filterStatus.length - 1 }} )
+                          </span>
+                        </template>
+                        <template v-slot:item="{ item, attrs }">
+                          <v-badge
+                            :value="attrs['aria-selected'] == 'true'"
+                            color="#7620df"
+                            dot
+                            left
+                          >
+                            <i
+                              :style="{
+                                background: item.color,
+                                outline: '1px solid grey',
+                              }"
+                              class="sel_stat mr-4"
+                            ></i>
+                          </v-badge>
+                          {{ item.name }}
+                        </template>
+                      </v-select>
+                      <v-select
+                        label="Фильтр статус"
+                        v-model="filterStatusTabl"
+                        :items="Statuses"
+                        item-text="name"
+                        item-value="id"
+                        outlined
+                        rounded
+                        :multiple="true"
+                      >
+                        <template v-slot:selection="{ item, index }">
+                          <span v-if="index === 0">{{ item.name }} </span>
+                          <span
+                            v-if="index === 1"
+                            class="grey--text text-caption"
+                          >
+                            (+{{ filterStatusTabl.length - 1 }} )
                           </span>
                         </template>
                         <template v-slot:item="{ item, attrs }">
@@ -762,6 +799,7 @@ export default {
     tab: 0,
     Statuses: [],
     filterStatus: [],
+    filterStatusTabl: [],
     resetStatus: [],
     leads: [],
     email_tel: "email",
@@ -840,6 +878,7 @@ export default {
       }
     },
   },
+
   mounted() {
     this.getImports();
     //this.ImportedProvLids();
@@ -848,6 +887,14 @@ export default {
     this.getStatuses();
   },
   computed: {
+    filteredLeads() {
+      return this.leads.filter((i) => {
+        return (
+          !this.filterStatusTabl.length ||
+          this.filterStatusTabl.includes(i.status_id)
+        );
+      });
+    },
     filteredItems() {
       let reg = new RegExp("^" + this.filtertel);
       return this.parse_csv.filter((i) => {

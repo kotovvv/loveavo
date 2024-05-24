@@ -305,14 +305,18 @@ class LidsController extends Controller
   {
     $res = [];
     $res['date_start'] = date('Y-m-d H:i:s');
-
     $data = $request->all();
     $office_id = User::where('id', (int) $data['user_id'])->value('office_id');
     //Debugbar::info($data['data']);
+    $load_mess = '';
+    if (isset($data['message'])) {
+      $load_mess = $data['message'];
+    }
 
     foreach ($data['data'] as $lid) {
       $n_lid = new Lid;
-      $n_lid->load_key = strtotime($res['date_start']);
+      $n_lid->dep_reg = $data['dep_reg'];
+
       if (isset($lid['name'])) {
         $n_lid->name = mb_convert_encoding(substr(trim($lid['name']), 0, 50), 'UTF-8', 'UTF-8');
       }
@@ -321,17 +325,29 @@ class LidsController extends Controller
         $n_lid->name = substr($n_lid->name, 0, 50);
       }
 
+
       if (isset($lid['tel'])) {
         $n_lid->tel =  preg_replace('/[^0-9]/', '', $lid['tel']);
-        $n_lid->client_geo = $this->getGeo($n_lid->tel);
+        if (strlen($n_lid->tel) < 6) {
+          continue;
+        }
       } else {
         continue;
       }
 
       if (isset($lid['email'])) {
         $n_lid->email = $lid['email'];
+      } else {
+        $n_lid->email = '';
       }
 
+      if (isset($lid['deposit'])) {
+        $n_lid->deposit = $lid['deposit'];
+      } else {
+        $n_lid->deposit = "";
+      }
+
+      $n_lid->load_mess = $load_mess;
 
       $n_lid->user_id = $data['user_id'];
       $n_lid->office_id = $office_id;
@@ -352,7 +368,11 @@ class LidsController extends Controller
       if ($n_lid->provider_id == '76') {
         $n_lid->status_id = 8;
       }
-      $n_lid->save();
+      try {
+        $n_lid->save();
+      } catch (\Throwable $th) {
+        $res['error'] = $th;
+      }
     }
     $res['date_end'] = date('Y-m-d H:i:s');
     return response($res, 200);
@@ -790,12 +810,74 @@ WHERE (l.`provider_id` = '" . $f_key->id . "'
   public function getlidsImportedProvider(Request $request)
   {
     $req = $request->all();
-    if (isset($req['provider_id']) && isset($req['start']) && isset($req['end'])) {
-      $lids =  Lid::where('provider_id', (int) $req['provider_id'])->whereBetween('created_at', [$req['start'], $req['end']])->get();
+    $users_ids = [];
+    $office_id = null;
+    $where_ids_off = '';
+
+    if (session()->has('user_id')) {
+      $user = User::where('id', (int) session()->get('user_id'))->first();
+      if ($user['group_id']) {
+        $res = User::select('id')->whereIn('group_id', $user['group_id'])->get()->toArray();
+        foreach ($res as $item) {
+          $users_ids[] = $item['id'];
+        }
+        $where_ids_off = ' user_id IN (' . implode(',', $users_ids) . ') AND ';
+      }
+      $office_id = $user['office_id'];
+      if ($office_id > 0) {
+        $where_ids_off .= 'office_id = ' . (int) $office_id . ' AND ';
+      }
+    }
+
+    $geo = isset($req['geo']) ? $req['geo'] : '';
+    if (isset($req['end']) && isset($req['message'])) {
+      $date_end = substr($req['end'], 0, 10);
+
+      return  Lid::select('lids.*', 'users.fio AS  user', 'offices.name AS office')
+        ->where('load_mess', $req['message'])
+        ->whereDate('lids.created_at', $date_end)
+        ->leftJoin('users', 'users.id', '=', 'user_id')
+        ->leftJoin('offices', 'offices.id', '=', 'lids.office_id')
+        ->when($office_id > 0, function ($query) use ($office_id) {
+          return $query->where('office_id', $office_id);
+        })
+        ->when(count($users_ids) > 0, function ($query) use ($users_ids) {
+          return $query->whereIn('user_id', $users_ids);
+        })
+        ->get();
+    } elseif (isset($req['provider_id']) && isset($req['start']) && isset($req['end'])) {
+      $lids = Lid::select('lids.*', 'users.fio AS  user', 'offices.name AS office')
+        ->leftJoin('users', 'users.id', '=', 'user_id')
+        ->leftJoin('offices', 'offices.id', '=', 'lids.office_id')
+        ->where('provider_id', (int) $req['provider_id'])
+        ->whereBetween('lids.created_at', [$req['start'], $req['end']])
+        ->when($office_id > 0, function ($query) use ($office_id) {
+          return $query->where('office_id', $office_id);
+        })
+        ->when(count($users_ids) > 0, function ($query) use ($users_ids) {
+          return $query->whereIn('user_id', $users_ids);
+        })
+        ->get();
       if ($lids->count()) {
         return $lids;
-      }
+      } else {
+        $message = DB::table('imports')->where('start', $req['start'])->where('end', $req['end'])->where('provider_id', $req['provider_id'])->first()->message;
 
+        return  Lid::select('lids.*', 'users.fio AS  user', 'offices.name AS office')
+          ->where('load_mess', $message)
+          ->leftJoin('users', 'users.id', '=', 'user_id')
+          ->leftJoin('offices', 'offices.id', '=', 'lids.office_id')
+          ->when($office_id > 0, function ($query) use ($office_id) {
+            return $query->where('office_id', $office_id);
+          })
+          ->when(count($users_ids) > 0, function ($query) use ($users_ids) {
+            return $query->whereIn('user_id', $users_ids);
+          })
+          ->get();
+      }
+    } else {
+      $sql = "SELECT l.`id`,`tel`,l.`name`,`email`,l.`created_at`,l.updated_at,afilyator,`status_id`,users.fio as user,offices.name as office FROM `lids` l left join users on (users.id = l.user_id) left join offices on (offices.id = l.office_id) WHERE l.`id` IN (SELECT `lead_id` FROM `imported_leads` WHERE " . $where_ids_off . " `api_key_id` = " . $req['provider_id'] . " AND DATE(`upload_time`) = '" . $req['start'] . "' AND geo = '" . $geo . "')";
+      return DB::select(DB::raw($sql));
     }
     return response('Some not good(', 404);
   }
@@ -914,6 +996,7 @@ WHERE (l.`provider_id` = '" . $f_key->id . "'
 
     return response('Delete lids ' . count($lids), 200);
   }
+
   public function clearLiads(Request $request)
   {
     $lids = $request->all();
@@ -1512,4 +1595,3 @@ WHERE (l.`provider_id` = '" . $f_key->id . "'
     //
   }
 }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                          
