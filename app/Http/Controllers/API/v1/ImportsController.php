@@ -21,7 +21,7 @@ class ImportsController extends Controller
   public function index($from = 0, $to = 0)
   {
 
-    return Import::select(['imports.*', DB::raw('(SELECT `name` FROM `providers` WHERE `id` = `provider_id`) AS provider'), DB::raw('(SELECT `name` FROM `users` WHERE `id` = `user_id`) AS user'), DB::raw('(SELECT `group_id` FROM `users` WHERE `id` = `user_id`) AS group_id'), DB::raw('(SELECT count(*) FROM lids WHERE `load_mess` = imports.`message` AND status_id =8) AS hmnew')])->when($from != 0 && $to != 0, function ($query) use ($from, $to) {
+    return Import::select(['imports.*', DB::raw('(SELECT `name` FROM `providers` WHERE `id` = `provider_id`) AS provider'), DB::raw('(SELECT `name` FROM `users` WHERE `id` = `user_id`) AS user'), DB::raw('(SELECT `group_id` FROM `users` WHERE `id` = `user_id`) AS group_id'), DB::raw('(SELECT count(*) FROM lids WHERE `load_mess` = imports.`message` AND status_id =8) AS hmnew'), DB::raw('(SELECT count(*) FROM lids WHERE `load_mess` = imports.`message` ) AS hm'), DB::raw('(SELECT count(*) FROM lids WHERE `load_mess` = imports.`message` AND status_id = 9 ) AS hmcb'), DB::raw('(SELECT count(*) FROM lids WHERE `load_mess` = imports.`message` AND status_id = 10 ) AS hmdp')])->when($from != 0 && $to != 0, function ($query) use ($from, $to) {
       return $query->whereBetween('start', [$from . ' 00:00:00', $to . ' 23:59:59']);
     })->orderByDesc('end')->get();
   }
@@ -233,6 +233,31 @@ class ImportsController extends Controller
   {
     //
   }
+
+  public function getHistory(Request $request)
+  {
+    $data = $request->all();
+    $loads_id = $data['id'];
+    $message = isset($data['message']) ? $data['message'] : null;
+    $response = [];
+    $response['statuses'] = [];
+    $lidids = DB::table('historyimport')->where('imports_id', $loads_id)->when($message != null, function ($query) use ($message) {
+      return $query->where('load_mess', $message);
+    })->orderBy('created_at', 'DESC')->get()->pluck('lids')->toArray();
+    // $sql= "SELECT lids FROM `historyimport` WHERE imports_id = ". $loads_id." ORDER BY created_at DESC LIMIT 1";
+    if (count($lidids)) {
+      $getLiads = Lid::whereIn('lids.id', explode(',', $lidids[0]));
+      $response['statuses'] = $getLiads->select(DB::Raw('count(statuses.id) hm'), 'statuses.id', 'statuses.name', 'statuses.color')
+        ->leftJoin('statuses', 'statuses.id', '=', 'status_id')
+        ->groupBy('statuses.id')
+        ->orderBy('statuses.order', 'ASC')
+        ->get();
+    }
+
+    $response['history'] = DB::table('historyimport')->where('imports_id', $loads_id)->orderBy('created_at', 'DESC')->get();
+    return $response;
+  }
+
   public function redistribute(Request $request)
   {
     $data = $request->all();
@@ -299,7 +324,6 @@ class ImportsController extends Controller
     $hm = ceil(count($alliads) / count($usersIds));
 
     foreach (array_chunk($alliads, $hm) as $n_user => $lid_ids) {
-      dd();
       Lid::whereIn('id', $lid_ids)->update(['user_id' => $usersIds[$n_user], 'updated_at' => Now(), 'status_id' => 8, 'text' => '', 'qtytel' => 0]);
     }
     Log::whereIn('lid_id', $alliads)->delete();

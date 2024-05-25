@@ -8,136 +8,16 @@
       color="purple"
     ></v-progress-linear>
     <v-list>
-      <!-- <div v-for="office in offices" :key="office.id"> -->
-      <!-- <p class="title" v-if="office.id > 0">{{ office.name }}</p> -->
-
-      <div>
-        <v-expansion-panels multiple v-model="panel">
+      <div v-for="office in offices" :key="office.id">
+        <p class="title" v-if="office.id > 0">{{ office.name }}</p>
+        <v-expansion-panels v-model="akkvalue[office.id]">
           <v-expansion-panel
-            v-for="group in groups"
-            :key="group.id"
-            :expand="true"
-          >
-            <v-expansion-panel-header>
-              <div class="d-flex align-start">
-                <input
-                  type="checkbox"
-                  class="mr-1"
-                  :id="group.id"
-                  :value="group.id"
-                  @change.stop.prevent="setGroup(group.id, 0, $event)"
-                />
-                <label :for="group.id"
-                  ><b>{{ group.fio }}</b></label
-                >
-              </div>
-            </v-expansion-panel-header>
-            <v-expansion-panel-content>
-              <!-- v-model="akkvalue['H' + group.id]" -->
-              <v-expansion-panel :expand="true">
-                <v-expansion-panel-header>
-                  <div class="d-flex align-start">
-                    <input
-                      type="checkbox"
-                      class="mr-1"
-                      :id="'H' + group.id"
-                      :value="'H' + group.id"
-                      @change.stop.prevent="setGroup(group.id, 3, $event)"
-                    />
-                    <label :for="'H' + group.id">Hight </label>
-                  </div>
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <div
-                    v-for="huser in users.filter((u) => {
-                      return u.group_id == group.id && u.level == 3;
-                    })"
-                    :key="huser.id"
-                  >
-                    <input
-                      type="checkbox"
-                      :id="huser.id"
-                      :value="huser.id"
-                      v-model="userids"
-                    />
-                    <label :for="huser.id">{{ huser.fio }}</label>
-                  </div>
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-              <!-- v-model="akkvalue['M' + group.id]" -->
-              <v-expansion-panel :expand="true">
-                <v-expansion-panel-header>
-                  <div class="d-flex align-start">
-                    <input
-                      type="checkbox"
-                      class="mr-1"
-                      :id="'M' + group.id"
-                      :value="'M' + group.id"
-                      @change.stop.prevent="setGroup(group.id, 2, $event)"
-                    />
-                    <label :for="'M' + group.id">Middle</label>
-                  </div>
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <div
-                    v-for="muser in users.filter((u) => {
-                      return u.group_id == group.id && u.level == 2;
-                    })"
-                    :key="muser.id"
-                  >
-                    <input
-                      type="checkbox"
-                      :id="muser.id"
-                      :value="muser.id"
-                      v-model="userids"
-                    />
-                    <label :for="muser.id">{{ muser.fio }}</label>
-                  </div>
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-              <!-- v-model="akkvalue['L' + group.id]" -->
-              <v-expansion-panel :expand="true">
-                <v-expansion-panel-header>
-                  <div class="d-flex align-start">
-                    <input
-                      type="checkbox"
-                      class="mr-1"
-                      :id="'L' + group.id"
-                      :value="'L' + group.id"
-                      @change.stop.prevent="setGroup(group.id, 1, $event)"
-                    />
-                    <label :for="'L' + group.id">Low</label>
-                  </div>
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <div
-                    v-for="huser in users.filter((u) => {
-                      return u.group_id == group.id && u.level == 1;
-                    })"
-                    :key="huser.id"
-                  >
-                    <input
-                      type="checkbox"
-                      :id="huser.id"
-                      :value="huser.id"
-                      v-model="userids"
-                    />
-                    <label :for="huser.id">{{ huser.fio }}</label>
-                  </div>
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-            </v-expansion-panel-content>
-          </v-expansion-panel>
-        </v-expansion-panels>
-      </div>
-      <!-- <v-expansion-panels v-model="akkvalue[office.id]">
-          <v-expansion-panel
-            v-for="item in group.filter((g) => g.office_id == office.id)"
+            v-for="item in groups.filter((g) => g.office_id == office.id)"
             :key="item.group_id"
           >
             <v-expansion-panel-header>
               {{ item.fio }}
-
+              <div></div>
             </v-expansion-panel-header>
             <v-expansion-panel-content>
               <v-col
@@ -154,18 +34,23 @@
                 />
                 <label :for="user.id"
                   >{{ user.fio }}
-                   <v-badge
+                  <v-badge
                     :content="user.hmlids"
                     :value="user.hmlids"
                     :color="usercolor(user)"
                     overlap
                   >
-                  </v-badge >
-              </label>
+                    <!-- <v-icon large v-if="user.role_id === 2">
+                              mdi-account-group-outline
+                            </v-icon>
+                            <v-icon large v-else> mdi-account-outline </v-icon> -->
+                  </v-badge></label
+                >
               </v-col>
             </v-expansion-panel-content>
           </v-expansion-panel>
-        </v-expansion-panels> -->
+        </v-expansion-panels>
+      </div>
 
       <v-btn class="btn ma-3" @click="setUserIds">Назначить</v-btn>
     </v-list>
@@ -183,13 +68,13 @@ export default {
     offices: [],
     groups: [],
     loading: false,
-    // akkvalue: [],
+    akkvalue: [],
     userids: [],
     panel: [],
   }),
   mounted() {
     this.getUsers();
-    // this.getOffices();
+    this.getOffices();
   },
   computed: {},
   methods: {

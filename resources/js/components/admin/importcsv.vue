@@ -452,7 +452,19 @@
                 :disable-items-per-page="true"
                 :loading="loading"
                 loading-text="Загружаю... Ожидайте"
+                ref="datatablelids"
+                @click:row="getLog"
+                :single-expand="true"
               >
+                <template v-slot:expanded-item="{ headers, item }">
+                  <td :colspan="headers.length" class="blackborder">
+                    <v-row>
+                      <v-col cols="12">
+                        <logtel :lid_id="item.id" :key="item.id" />
+                      </v-col>
+                    </v-row>
+                  </td>
+                </template>
                 <template
                   v-slot:top="{ pagination, options, updateOptions }"
                   :footer-props="{
@@ -705,9 +717,10 @@ import XLSX from "xlsx";
 import axios from "axios";
 import importBTC from "./importBTC";
 import importxlsx from "./importxlsx";
-
+import logtel from "../manager/logtel";
 import _ from "lodash";
 export default {
+  name: "ImportCSV",
   data: () => ({
     search: "",
     user_ids: [],
@@ -768,6 +781,9 @@ export default {
       { text: "L/A", value: "cp", sortable: false },
       { text: "Коментар", value: "message", sortable: false },
       { text: "NEW", value: "hmnew", sortable: false },
+      { text: "CallBack", value: "hmcb", sortable: false },
+      { text: "Deposit", value: "hmdp", sortable: false },
+      { text: "Кол-во", value: "hm", sortable: false },
       { text: "", value: "id", sortable: false },
     ],
     import_provider_headers: [
@@ -776,6 +792,9 @@ export default {
       { text: "Сумма", value: "sum", sortable: false },
       { text: "L/A", value: "cp", sortable: false },
       { text: "NEW", value: "hmnew", sortable: false },
+      { text: "CallBack", value: "hmcb", sortable: false },
+      { text: "Deposit", value: "hmdp", sortable: false },
+      { text: "Кол-во", value: "hm", sortable: false },
       { text: "GEO", value: "geo", sortable: false },
       // { text: "", value: "id" },
     ],
@@ -1364,7 +1383,11 @@ export default {
       }, 100);
       */
     },
+    getLog(i, row) {
+      this.$refs.datatablelids.expansion = {};
 
+      row.expand(!row.isExpanded);
+    },
     clickrow(item) {
       let self = this;
       let data = {};
@@ -1450,6 +1473,9 @@ export default {
               cp,
               baer,
               hmnew,
+              hm,
+              hmcb,
+              hmdp,
             }) => ({
               id,
               start,
@@ -1464,6 +1490,9 @@ export default {
               cp,
               baer,
               hmnew,
+              hm,
+              hmcb,
+              hmdp,
             })
           );
           let a_prov = _.uniq(
@@ -1675,6 +1704,7 @@ export default {
   components: {
     importBTC,
     importxlsx,
+    logtel,
     ConfirmDlg: () => import("./ConfirmDlg"),
     SelectUsers: () => import("./UI/selectUsers"),
   },
