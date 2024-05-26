@@ -825,7 +825,7 @@ WHERE (l.`provider_id` = '" . $f_key->id . "'
       }
       $office_id = $user['office_id'];
       if ($office_id > 0) {
-        $where_ids_off .= 'office_id = ' . (int) $office_id . ' AND ';
+        $where_ids_off .= 'lids.office_id = ' . (int) $office_id . ' AND ';
       }
     }
 
@@ -839,7 +839,7 @@ WHERE (l.`provider_id` = '" . $f_key->id . "'
         ->leftJoin('users', 'users.id', '=', 'user_id')
         ->leftJoin('offices', 'offices.id', '=', 'lids.office_id')
         ->when($office_id > 0, function ($query) use ($office_id) {
-          return $query->where('office_id', $office_id);
+          return $query->where('lids.office_id', $office_id);
         })
         ->when(count($users_ids) > 0, function ($query) use ($users_ids) {
           return $query->whereIn('user_id', $users_ids);

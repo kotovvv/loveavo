@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Import;
 use App\Models\Lid;
 use App\Models\Log;
+use App\Models\User;
 use Storage;
 use DB;
 use Debugbar;
@@ -312,7 +313,6 @@ class ImportsController extends Controller
           return $query->whereIn('status_id', $resetStatus);
         })->get()->pluck('id')->toArray();
         $historyimp['lids'] = implode(',', $setLiads);
-
         $historyimp['imports_id'] = $import_['id'];
         $historyimp['created_at'] = Now();
         //- insert to history
@@ -324,7 +324,9 @@ class ImportsController extends Controller
     $hm = ceil(count($alliads) / count($usersIds));
 
     foreach (array_chunk($alliads, $hm) as $n_user => $lid_ids) {
-      Lid::whereIn('id', $lid_ids)->update(['user_id' => $usersIds[$n_user], 'updated_at' => Now(), 'status_id' => 8, 'text' => '', 'qtytel' => 0]);
+      $office_id = User::where('id', (int) $usersIds[$n_user])->value('office_id');
+
+      Lid::whereIn('id', $lid_ids)->update(['user_id' => $usersIds[$n_user], 'updated_at' => Now(), 'office_id' => $office_id, 'status_id' => 8, 'text' => '', 'qtytel' => 0]);
     }
     Log::whereIn('lid_id', $alliads)->delete();
     return response('All done', 200);

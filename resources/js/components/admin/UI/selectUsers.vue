@@ -59,6 +59,7 @@
 
 <script>
 import axios from "axios";
+import _ from "lodash";
 export default {
   props: {
     user: {},
@@ -71,9 +72,9 @@ export default {
     akkvalue: [],
     userids: [],
     panel: [],
+    groupByOffice: [],
   }),
   mounted() {
-    this.getUsers();
     this.getOffices();
   },
   computed: {},
@@ -121,6 +122,7 @@ export default {
               (o) => o.id == self.$props.user.office_id
             );
           }
+          self.getUsers();
         })
         .catch((error) => console.log(error));
     },
@@ -153,12 +155,13 @@ export default {
             })
           );
           self.loading = false;
-          self.users = self.users.filter((u) => {
-            return ![1144, 1036].includes(u.group_id);
-          });
-          self.users = self.users.filter((u) => {
-            return u.fio.indexOf("_") == -1;
-          });
+          // self.users = self.users.filter((u) => {
+          //   return ![1144, 1036].includes(u.group_id);
+          // });
+          // self.users = self.users.filter((u) => {
+          //   return u.fio.indexOf("_") == -1;
+          // });
+          // self.groupByOffice = _.groupBy(self.users, "office_id");
           self.groups = _.filter(self.users, function (o) {
             return o.group_id == o.id;
           });

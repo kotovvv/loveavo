@@ -114,6 +114,7 @@
                               item-value="id"
                               label="Группа"
                               :menu-props="{ maxHeight: '60vh' }"
+                              clearable
                             ></v-autocomplete>
                           </v-col>
 
@@ -341,6 +342,7 @@ export default {
       role_id: 0,
       password: "",
       group_id: "",
+      group: null,
       // sip_server: "",
       // sip_login: "",
       // sip_password: "",
@@ -363,6 +365,7 @@ export default {
       role_id: 0,
       password: "",
       group_id: "",
+      group: null,
       // sip_server: "",
       // sip_login: "",
       // sip_password: "",
@@ -439,8 +442,8 @@ export default {
           self.users.map(function (u) {
             // u.role = self.roles.find((r) => r.id == u.role_id).name;
             self.rolename(u);
-            if (u.role_id == 2)
-              self.group.push({ fio: u.fio, id: u.id, office_id: u.office_id });
+            //if (u.role_id == 2)
+            self.group.push({ fio: u.fio, id: u.id, office_id: u.office_id });
             u.group = "";
             if (u.office_id != null) {
               u.office =
@@ -567,6 +570,13 @@ export default {
         delete this.editedItem.role;
         this.saveUsers(this.editedItem);
         this.rolename(this.editedItem);
+        if (this.editedItem.group_id > 0) {
+          this.editedItem.group = this.users.find((u) => {
+            return u.id == this.editedItem.group_id;
+          }).fio;
+        } else {
+          this.editedItem.group = "";
+        }
         Object.assign(this.users[this.editedIndex], this.editedItem);
       } else {
         delete this.editedItem.role;

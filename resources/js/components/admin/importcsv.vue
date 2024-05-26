@@ -882,6 +882,7 @@ export default {
     historyStatus: [],
     holdLidsUsers: [],
     baers: [],
+    lidsByOffice: [],
   }),
   watch: {
     selectedProvider: function (newval) {
@@ -1206,8 +1207,18 @@ export default {
     },
     filterStatuses() {
       const self = this;
-      self.Statuses = [];
       let stord = this.leads;
+      let groupByOffice = [];
+      self.Statuses = [];
+      groupByOffice = Object.entries(_.groupBy(this.leads, "office_id"));
+      groupByOffice.forEach((a_office) => {
+        console.log(
+          self.offices.find((o) => {
+            return o.id == a_office[0];
+          }).name
+        );
+      });
+
       stord = Object.entries(_.groupBy(stord, "status"));
       stord.map(function (i) {
         //i[0]//name
@@ -1331,58 +1342,7 @@ export default {
       this.$refs.radiogroup.lazyValue = null;
       this.getUsers();
     },
-    filterStatuses() {
-      const self = this;
-      self.Statuses = [];
-      let stord = this.leads;
-      /* let lidsByUser = Object.entries(_.groupBy(stord, "user_id"));
 
-      lidsByUser.forEach((lidsUser) => {
-        stord = Object.entries(_.groupBy(lidsUser[1], "status"));
-
-        let status = [];
-        stord.map(function (i) {
-          //i[0]//name
-          //i[1]//array
-          let el = self.statuses.find((s) => s.name == i[0]);
-          status.push({
-            id: el.id,
-            name: i[0],
-            hm: i[1].length,
-            order: el.order,
-            color: el.color,
-          });
-        });
-        self.usersStatuses.push({
-          user: lidsUser[1][0].user,
-          user_id: lidsUser[0],
-          statuses: _.orderBy(status, "order"),
-        });
-      }); */
-      self.holdLidsUsers = Object.entries(_.groupBy(this.leads, "user"));
-      stord = Object.entries(_.groupBy(this.leads, "status"));
-      stord.map(function (i) {
-        //i[0]//name
-        //i[1]//array
-        let el = self.statuses.find((s) => s.name == i[0]);
-        self.Statuses.push({
-          id: el.id,
-          name: i[0],
-          order: el.order,
-          hm: i[1].length,
-          color: el.color,
-        });
-      });
-      self.Statuses = _.orderBy(self.Statuses, "order");
-      /*
-      setTimeout(() => {
-        const el = document.getElementById("info_prov");
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth" });
-        }
-      }, 100);
-      */
-    },
     getLog(i, row) {
       this.$refs.datatablelids.expansion = {};
 
