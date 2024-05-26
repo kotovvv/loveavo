@@ -883,6 +883,7 @@ export default {
     holdLidsUsers: [],
     baers: [],
     lidsByOffice: [],
+    offices: [],
   }),
   watch: {
     selectedProvider: function (newval) {
@@ -1382,13 +1383,32 @@ export default {
                 (s) => s.id == e.provider_id
               ).name;
           });
-
+          self.getOffices();
           self.filterStatuses();
           self.loading = false;
         })
         .catch(function (error) {
           console.log(error);
         });
+    },
+    getOffices() {
+      let self = this;
+      self.filterOffices = self.$props.user.office_id;
+      axios
+        .get("/api/getOffices")
+        .then((res) => {
+          self.offices = res.data;
+          // if (self.$props.user.role_id == 1) {
+          //   self.offices.unshift({ id: 0, name: "--выбор--" });
+          //   self.filterOffices = self.offices[1].id;
+          // }
+          if (self.$props.user.office_id > 0) {
+            self.offices = self.offices.filter(
+              (o) => o.id == self.$props.user.office_id
+            );
+          }
+        })
+        .catch((error) => console.log(error));
     },
     getProviders() {
       let self = this;
