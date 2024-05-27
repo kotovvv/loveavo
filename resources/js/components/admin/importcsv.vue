@@ -274,7 +274,7 @@
               </v-col>
               <v-btn
                 class="btn"
-                v-if="importSelected.length"
+                v-if="importSelected.length || redistributeOffice"
                 @click.stop="drawer = !drawer"
                 >Назначить на менеджеров</v-btn
               >
@@ -373,28 +373,39 @@
               {{ usr[0] }}.
             </span>
           </v-col>
-          <v-col cols="12" v-if="Statuses">
-            <div id="wrp_stat" class="wrp__statuses">
-              <!-- <div
+          <v-col cols="12" v-for="office in lidsByOffice" :key="office.name">
+            <div class="d-flex align-center">
+              <b class="mt-5">{{ office.name }}</b>
+              <v-checkbox
+                v-model="redistributeOffice"
+                hide-details
+                title="Переназначить"
+                :value="office.name"
+              ></v-checkbox>
+            </div>
+            <v-col cols="12" v-if="office.statuses">
+              <div id="wrp_stat" class="wrp__statuses">
+                <!-- <div
 
                 v-for="u in usersStatuses"
                 :key="u.user_id"
               >
                 {{ u.user }} -->
-              <template v-for="i in Statuses">
-                <div class="status_wrp" :key="i.id">
-                  <b
-                    :style="{
-                      background: i.color,
-                      outline: '1px solid' + i.color,
-                    }"
-                    >{{ i.hm }}</b
-                  >
-                  <span>{{ i.name }}</span>
-                </div>
-              </template>
-              <!-- </div> -->
-            </div>
+                <template v-for="i in office.statuses">
+                  <div class="status_wrp" :key="i.id">
+                    <b
+                      :style="{
+                        background: i.color,
+                        outline: '1px solid' + i.color,
+                      }"
+                      >{{ i.hm }}</b
+                    >
+                    <span>{{ i.name }}</span>
+                  </div>
+                </template>
+                <!-- </div> -->
+              </div>
+            </v-col>
           </v-col>
           <v-col cols="12" v-if="historyStatus.length">
             <p>Переназначенные</p>
@@ -725,7 +736,7 @@ export default {
     search: "",
     user_ids: [],
     clearable: true,
-    takedates: 0,
+    takedates: true,
     dateFrom: false,
     dateTo: false,
     dateProps: { locale: "ru-RU", format: "24hr" },
@@ -884,6 +895,7 @@ export default {
     baers: [],
     lidsByOffice: [],
     offices: [],
+    redistributeOffice: null,
   }),
   watch: {
     selectedProvider: function (newval) {
@@ -904,7 +916,7 @@ export default {
     this.getImports();
     //this.ImportedProvLids();
     this.getProviders();
-    // this.getUsers();
+    this.getOffices();
     this.getStatuses();
   },
   computed: {
@@ -966,14 +978,58 @@ export default {
           console.log(error);
         });
     },
+    redistributeLids() {
+      const self = this;
+      let data = {};
+      self.loading = true;
+      data.lid_ids = this.lidsByOffice
+        .find((f) => {
+          return f.name == self.redistributeOffice;
+        })
+        .lids.filter((f) => {
+          return (
+            !this.resetStatus.length || this.resetStatus.includes(f.status_id)
+          );
+        })
+        .map((l) => l.id);
+      data.usersIds = this.user_ids;
+      data.resetStatus = this.resetStatus;
+      data.id = this.item.id;
+      data.provider_id = this.item.provider_id;
+      data.message = this.item.message;
+      data.start = this.item.start;
+      data.geo = this.item.geo;
+      if (this.item.end != undefined) {
+        data.end = this.item.end;
+      }
+      axios
+        .post("api/redistributeLids", data)
+        .then(function (response) {
+          self.message = `Переназначение успешно выполнено<br>Для Офиса: ${self.redistributeOffice}`;
+          self.loading = false;
+          self.importSelected = [];
+          self.lidsByOffice = [];
+
+          (self.redistributeOffice = null), (self.user_ids = []);
+          self.snackbar = true;
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    },
     p_user_ids(user_ids) {
       const self = this;
       this.user_ids = user_ids;
-      this.drawer = false;
-      self.loading = true;
       if (this.user_ids.length == 0) {
         this.user_ids = [this.$attrs.user.id];
       }
+      this.drawer = false;
+      if (this.redistributeOffice) {
+        this.redistributeLids();
+        return;
+      }
+      self.loading = true;
+
       let data = {};
       data.importsIdsm = this.importSelected.map(
         ({ id, message, provider_id, start, geo }) => ({
@@ -1002,7 +1058,10 @@ export default {
           })}`;
           self.loading = false;
           self.importSelected = [];
-          self.user_ids = [];
+
+          self.lidsByOffice = [];
+
+          (self.redistributeOffice = null), (self.user_ids = []);
           self.snackbar = true;
         })
         .catch(function (error) {
@@ -1211,15 +1270,33 @@ export default {
       let stord = this.leads;
       let groupByOffice = [];
       self.Statuses = [];
+      self.lidsByOffice = [];
       groupByOffice = Object.entries(_.groupBy(this.leads, "office_id"));
       groupByOffice.forEach((a_office) => {
-        console.log(
-          self.offices.find((o) => {
-            return o.id == a_office[0];
-          }).name
-        );
+        const nameoffice = self.offices.find((o) => {
+          return o.id == a_office[0];
+        }).name;
+        const lids = Object.entries(_.groupBy(a_office[1], "status"));
+        let statuses = [];
+        lids.map(function (i) {
+          //i[0]//name
+          //i[1]//array
+          let el = self.statuses.find((s) => s.name == i[0]);
+          statuses.push({
+            id: el.id,
+            name: i[0],
+            hm: i[1].length,
+            order: el.order,
+            color: el.color,
+          });
+        });
+        statuses = _.orderBy(statuses, "order");
+        self.lidsByOffice.push({
+          name: nameoffice,
+          lids: a_office[1],
+          statuses: statuses,
+        });
       });
-
       stord = Object.entries(_.groupBy(stord, "status"));
       stord.map(function (i) {
         //i[0]//name
@@ -1383,7 +1460,6 @@ export default {
                 (s) => s.id == e.provider_id
               ).name;
           });
-          self.getOffices();
           self.filterStatuses();
           self.loading = false;
         })
@@ -1393,18 +1469,18 @@ export default {
     },
     getOffices() {
       let self = this;
-      self.filterOffices = self.$props.user.office_id;
+      self.filterOffices = self.$attrs.user.office_id;
       axios
         .get("/api/getOffices")
         .then((res) => {
           self.offices = res.data;
-          // if (self.$props.user.role_id == 1) {
+          // if (self.$attrs.user.role_id == 1) {
           //   self.offices.unshift({ id: 0, name: "--выбор--" });
           //   self.filterOffices = self.offices[1].id;
           // }
-          if (self.$props.user.office_id > 0) {
+          if (self.$attrs.user.office_id > 0) {
             self.offices = self.offices.filter(
-              (o) => o.id == self.$props.user.office_id
+              (o) => o.id == self.$attrs.user.office_id
             );
           }
         })

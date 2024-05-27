@@ -103,6 +103,7 @@ Route::post('getBTCsOnDate', [ImportsController::class, 'getBTCsOnDate']);
 Route::post('getBTCotherOnDate', [ImportsController::class, 'getBTCotherOnDate']);
 Route::get('deleteLoad/{load_key}', [ImportsController::class, 'deleteLoad']);
 Route::post('redistribute', [ImportsController::class, 'redistribute']);
+Route::post('redistributeLids', [ImportsController::class, 'redistributeLids']);
 Route::post('getHistory', [ImportsController::class, 'getHistory']);
 Route::post('changeDateBTC', [LidsController::class, 'changeDateBTC']);
 Route::post('getAssignedBTC', [LidsController::class, 'getAssignedBTC']);

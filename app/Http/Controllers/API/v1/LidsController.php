@@ -876,7 +876,7 @@ WHERE (l.`provider_id` = '" . $f_key->id . "'
           ->get();
       }
     } else {
-      $sql = "SELECT l.`id`,`tel`,l.`name`,`email`,l.`created_at`,l.updated_at,afilyator,`status_id`,users.fio as user,offices.name as office FROM `lids` l left join users on (users.id = l.user_id) left join offices on (offices.id = l.office_id) WHERE l.`id` IN (SELECT `lead_id` FROM `imported_leads` WHERE " . $where_ids_off . " `api_key_id` = " . $req['provider_id'] . " AND DATE(`upload_time`) = '" . $req['start'] . "' AND geo = '" . $geo . "')";
+      $sql = "SELECT l.`id`,`tel`,l.`name`,`email`,l.`created_at`,l.updated_at,afilyator,`status_id`,users.fio as user,offices.id as office_id,offices.name as office FROM `lids` l left join users on (users.id = l.user_id) left join offices on (offices.id = l.office_id) WHERE l.`id` IN (SELECT `lead_id` FROM `imported_leads` WHERE " . $where_ids_off . " `api_key_id` = " . $req['provider_id'] . " AND DATE(`upload_time`) = '" . $req['start'] . "' AND geo = '" . $geo . "')";
       return DB::select(DB::raw($sql));
     }
     return response('Some not good(', 404);
