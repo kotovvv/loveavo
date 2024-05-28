@@ -407,6 +407,22 @@
               </div>
             </v-col>
           </v-col>
+          <v-col cols="12" v-if="Statuses">
+            <div id="wrp_stat" class="wrp__statuses">
+              <template v-for="i in Statuses">
+                <div class="status_wrp" :key="i.id">
+                  <b
+                    :style="{
+                      background: i.color,
+                      outline: '1px solid' + i.color,
+                    }"
+                    >{{ i.hm }}</b
+                  >
+                  <span>{{ i.name }}</span>
+                </div>
+              </template>
+            </div>
+          </v-col>
           <v-col cols="12" v-if="historyStatus.length">
             <p>Переназначенные</p>
             <div id="wrp_stat" class="wrp__statuses">
