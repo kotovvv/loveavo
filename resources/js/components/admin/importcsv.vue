@@ -734,7 +734,7 @@
       </v-card>
     </v-dialog>
     <v-navigation-drawer width="450" v-model="drawer" fixed temporary right>
-      <SelectUsers :user="$attrs.user" @getUserIds="p_user_ids" />
+      <selectUsers :user="$attrs.user" @getUserIds="p_user_ids" />
     </v-navigation-drawer>
   </div>
 </template>
@@ -745,6 +745,7 @@ import axios from "axios";
 import importBTC from "./importBTC";
 import importxlsx from "./importxlsx";
 import logtel from "../manager/logtel";
+import selectUsers from "./UI/selectUsers";
 import _ from "lodash";
 export default {
   name: "ImportCSV",
@@ -1778,7 +1779,7 @@ export default {
     importxlsx,
     logtel,
     ConfirmDlg: () => import("./ConfirmDlg"),
-    SelectUsers: () => import("./UI/selectUsers"),
+    selectUsers,
   },
 };
 </script>
