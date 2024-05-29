@@ -1020,10 +1020,11 @@ WHERE (l.`provider_id` = '" . $f_key->id . "'
     } else {
       $n_lid->name = time();
     }
-
+    $geo = '';
     if (isset($req['umcfields']['phone']) && strlen($req['umcfields']['phone']) > 1) {
       $n_lid->tel =  preg_replace('/[^0-9]/', '', $req['umcfields']['phone']);
       $n_lid->client_geo = $this->getGeo($n_lid->tel);
+      $geo = $n_lid->client_geo;
       $added_date =  Lid::where('tel', '=', '' . $n_lid->tel)->orderBy('created_at', 'desc')->value('created_at');
       if ($added_date != '') {
         $date = Carbon::now();
@@ -1075,7 +1076,8 @@ WHERE (l.`provider_id` = '" . $f_key->id . "'
 
     $n_lid->save();
     $id = $n_lid->id;
-    $insert = DB::table('imported_leads')->insert(['lead_id' => $id, 'api_key_id' => $f_key->id, 'upload_time' => Now()]);
+    $insert = DB::table('imported_leads')->insert(['lead_id' => $id, 'api_key_id' => $f_key->id, 'upload_time' => Now(), 'geo' => $geo]);
+    DB::table('imports_provider')->updateOrInsert(['date' => date('Y-m-d'), 'provider_id' => $f_key->id, 'geo' => $geo], ['date' => date('Y-m-d')]);
 
     $res['status'] = 'OK';
     $res['id'] = $id;
@@ -1116,10 +1118,11 @@ WHERE (l.`provider_id` = '" . $f_key->id . "'
     if ($fio) {
       $n_lid->name =  $fio;
     }
-
+    $geo = '';
     if ($phonestr) {
       $n_lid->tel = preg_replace('/[^0-9]/', '', $phonestr);
       $n_lid->client_geo = $this->getGeo($n_lid->tel);
+      $geo = $n_lid->client_geo;
       $added_date =  Lid::where('tel', '=', '' . $n_lid->tel)->orderBy('created_at', 'desc')->value('created_at');
       if ($added_date != '') {
         $date = Carbon::now();
@@ -1177,7 +1180,8 @@ WHERE (l.`provider_id` = '" . $f_key->id . "'
     } */
     $n_lid->save();
     $id = $n_lid->id;
-    $insert = DB::table('imported_leads')->insert(['lead_id' => $id, 'api_key_id' => $f_key->id, 'upload_time' => Now()]);
+    $insert = DB::table('imported_leads')->insert(['lead_id' => $id, 'api_key_id' => $f_key->id, 'upload_time' => Now(), 'geo' => $geo]);
+    DB::table('imports_provider')->updateOrInsert(['date' => date('Y-m-d'), 'provider_id' => $f_key->id, 'geo' => $geo], ['date' => date('Y-m-d')]);
 
     $res['status'] = 'OK';
     $res['id'] = $id;
@@ -1201,10 +1205,11 @@ WHERE (l.`provider_id` = '" . $f_key->id . "'
     } else {
       $n_lid->name = time();
     }
-
+    $geo = "";
     if (isset($req['umcfields[phone]']) && strlen($req['umcfields[phone]']) > 1) {
       $n_lid->tel =  preg_replace('/[^0-9]/', '', $req['umcfields[phone]']);
       $n_lid->client_geo = $this->getGeo($n_lid->tel);
+      $geo = $n_lid->client_geo;
       $added_date =  Lid::where('tel', '=', '' . $n_lid->tel)->orderBy('created_at', 'desc')->value('created_at');
       if ($added_date != '') {
         $date = Carbon::now();
@@ -1251,7 +1256,8 @@ WHERE (l.`provider_id` = '" . $f_key->id . "'
 
     $n_lid->save();
     $id = $n_lid->id;
-    $insert = DB::table('imported_leads')->insert(['lead_id' => $id, 'api_key_id' => $f_key->id, 'upload_time' => Now()]);
+    $insert = DB::table('imported_leads')->insert(['lead_id' => $id, 'api_key_id' => $f_key->id, 'upload_time' => Now(), 'geo' => $geo]);
+    DB::table('imports_provider')->updateOrInsert(['date' => date('Y-m-d'), 'provider_id' => $f_key->id, 'geo' => $geo], ['date' => date('Y-m-d')]);
 
     $res['status'] = 'OK';
     $res['id'] = $id;
@@ -1274,10 +1280,11 @@ WHERE (l.`provider_id` = '" . $f_key->id . "'
     } else {
       $n_lid->name = time();
     }
-
+    $geo = '';
     if (isset($req['umcfields']['phone']) && strlen($req['umcfields']['phone']) > 1) {
       $n_lid->tel =  $req['umcfields']['phone'];
       $n_lid->client_geo = $this->getGeo($n_lid->tel);
+      $geo = $n_lid->client_geo;
       $added_date =  Lid::where('tel', '=', '' . $n_lid->tel)->orderBy('created_at', 'desc')->value('created_at');
       if ($added_date != '') {
         $date = Carbon::now();
@@ -1329,7 +1336,8 @@ WHERE (l.`provider_id` = '" . $f_key->id . "'
 
     $n_lid->save();
     $id = $n_lid->id;
-    $insert = DB::table('imported_leads')->insert(['lead_id' => $id, 'api_key_id' => $f_key->id, 'upload_time' => Now()]);
+    $insert = DB::table('imported_leads')->insert(['lead_id' => $id, 'api_key_id' => $f_key->id, 'upload_time' => Now(), 'geo' => $geo]);
+    DB::table('imports_provider')->updateOrInsert(['date' => date('Y-m-d'), 'provider_id' => $f_key->id, 'geo' => $geo], ['date' => date('Y-m-d')]);
 
     $res['status'] = 'OK';
     $res['id'] = $id;
