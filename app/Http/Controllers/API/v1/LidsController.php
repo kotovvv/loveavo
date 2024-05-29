@@ -1581,9 +1581,13 @@ WHERE (l.`provider_id` = '" . $f_key->id . "'
 
   public function ImportedProvLids($from = 0, $to = 0)
   {
+    $office_id = session()->get('office_id');
     $where = '  ';
     if ($from != 0) {
       $where = ' WHERE `date` between \'' . $from . ' 00:00:00\' and \'' . $to . ' 23:59:59\'';
+    }
+    if ($office_id > 0) {
+      $where .= " AND JSON_SEARCH(office_ids, 'one'," . $office_id . ") IS NOT NULL ";
     }
 
     DB::statement("SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));");

@@ -21,10 +21,16 @@ class ImportsController extends Controller
    */
   public function index($from = 0, $to = 0)
   {
+    $office_id = session()->get('office_id');
 
-    return Import::select(['imports.*', DB::raw('(SELECT `name` FROM `providers` WHERE `id` = `provider_id`) AS provider'), DB::raw('(SELECT `name` FROM `users` WHERE `id` = `user_id`) AS user'), DB::raw('(SELECT `group_id` FROM `users` WHERE `id` = `user_id`) AS group_id'), DB::raw('(SELECT count(*) FROM lids WHERE `load_mess` = imports.`message` AND status_id =8) AS hmnew'), DB::raw('(SELECT count(*) FROM lids WHERE `load_mess` = imports.`message` ) AS hm'), DB::raw('(SELECT count(*) FROM lids WHERE `load_mess` = imports.`message` AND status_id = 9 ) AS hmcb'), DB::raw('(SELECT count(*) FROM lids WHERE `load_mess` = imports.`message` AND status_id = 10 ) AS hmdp')])->when($from != 0 && $to != 0, function ($query) use ($from, $to) {
-      return $query->whereBetween('start', [$from . ' 00:00:00', $to . ' 23:59:59']);
-    })->orderByDesc('end')->get();
+    return Import::select(['imports.*', DB::raw('(SELECT `name` FROM `providers` WHERE `id` = `provider_id`) AS provider'), DB::raw('(SELECT `name` FROM `users` WHERE `id` = `user_id`) AS user'), DB::raw('(SELECT `group_id` FROM `users` WHERE `id` = `user_id`) AS group_id'), DB::raw('(SELECT count(*) FROM lids WHERE `load_mess` = imports.`message` AND status_id =8) AS hmnew'), DB::raw('(SELECT count(*) FROM lids WHERE `load_mess` = imports.`message` ) AS hm'), DB::raw('(SELECT count(*) FROM lids WHERE `load_mess` = imports.`message` AND status_id = 9 ) AS hmcb'), DB::raw('(SELECT count(*) FROM lids WHERE `load_mess` = imports.`message` AND status_id = 10 ) AS hmdp')])
+      ->when($from != 0 && $to != 0, function ($query) use ($from, $to) {
+        return $query->whereBetween('start', [$from . ' 00:00:00', $to . ' 23:59:59']);
+      })
+      ->when($office_id > 0, function ($query) use ($office_id) {
+        return $query->whereNotNull(DB::raw("JSON_SEARCH(office_ids, 'one', $office_id) "));
+      })
+      ->orderByDesc('end')->get();
   }
 
   public function putBTC(Request $request)
