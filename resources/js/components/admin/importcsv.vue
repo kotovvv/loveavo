@@ -375,11 +375,10 @@
           </v-col>
           <v-col cols="12" v-for="office in lidsByOffice" :key="office.name">
             <div class="d-flex align-center">
-              <b class="mt-5">{{ office.name }}</b>
               <v-checkbox
                 v-model="redistributeOffice"
                 hide-details
-                title="Переназначить"
+                :label="office.name + ' - ' + office.lids.length"
                 :value="office.name"
               ></v-checkbox>
             </div>
@@ -550,43 +549,55 @@
                           {{ item.name }}
                         </template>
                       </v-select>
-                      <v-select
-                        label="Фильтр статус"
-                        v-model="filterStatusTabl"
-                        :items="Statuses"
-                        item-text="name"
-                        item-value="id"
-                        outlined
-                        rounded
-                        :multiple="true"
-                      >
-                        <template v-slot:selection="{ item, index }">
-                          <span v-if="index === 0">{{ item.name }} </span>
-                          <span
-                            v-if="index === 1"
-                            class="grey--text text-caption"
-                          >
-                            (+{{ filterStatusTabl.length - 1 }} )
-                          </span>
-                        </template>
-                        <template v-slot:item="{ item, attrs }">
-                          <v-badge
-                            :value="attrs['aria-selected'] == 'true'"
-                            color="#7620df"
-                            dot
-                            left
-                          >
-                            <i
-                              :style="{
-                                background: item.color,
-                                outline: '1px solid grey',
-                              }"
-                              class="sel_stat mr-4"
-                            ></i>
-                          </v-badge>
-                          {{ item.name }}
-                        </template>
-                      </v-select>
+                      <div class="d-flex">
+                        <v-select
+                          label="Фильтр статус"
+                          v-model="filterStatusTabl"
+                          :items="Statuses"
+                          item-text="name"
+                          item-value="id"
+                          outlined
+                          rounded
+                          :multiple="true"
+                        >
+                          <template v-slot:selection="{ item, index }">
+                            <span v-if="index === 0">{{ item.name }} </span>
+                            <span
+                              v-if="index === 1"
+                              class="grey--text text-caption"
+                            >
+                              (+{{ filterStatusTabl.length - 1 }} )
+                            </span>
+                          </template>
+                          <template v-slot:item="{ item, attrs }">
+                            <v-badge
+                              :value="attrs['aria-selected'] == 'true'"
+                              color="#7620df"
+                              dot
+                              left
+                            >
+                              <i
+                                :style="{
+                                  background: item.color,
+                                  outline: '1px solid grey',
+                                }"
+                                class="sel_stat mr-4"
+                              ></i>
+                            </v-badge>
+                            {{ item.name }}
+                          </template>
+                        </v-select>
+                        <v-select
+                          label="Фильтр office"
+                          v-model="filterOfficeTabl"
+                          :items="lidsByOffice"
+                          item-text="name"
+                          item-value="name"
+                          outlined
+                          rounded
+                          :multiple="true"
+                        ></v-select>
+                      </div>
                     </v-col>
                     <v-col cols="3">
                       <v-select
@@ -847,6 +858,7 @@ export default {
     Statuses: [],
     filterStatus: [],
     filterStatusTabl: [],
+    filterOfficeTabl: [],
     resetStatus: [],
     leads: [],
     email_tel: "email",
@@ -940,8 +952,10 @@ export default {
     filteredLeads() {
       return this.leads.filter((i) => {
         return (
-          !this.filterStatusTabl.length ||
-          this.filterStatusTabl.includes(i.status_id)
+          (!this.filterStatusTabl.length ||
+            this.filterStatusTabl.includes(i.status_id)) &&
+          (!this.filterOfficeTabl.length ||
+            this.filterOfficeTabl.includes(i.office))
         );
       });
     },
