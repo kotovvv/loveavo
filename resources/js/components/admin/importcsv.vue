@@ -346,6 +346,9 @@
             <v-data-table
               :headers="import_provider_headers"
               item-key="id"
+              group-by="group"
+              show-group-by
+              :expanded.sync="expanded"
               :items="filter_importsProvLeads"
               ref="importprovtable"
               show-select
@@ -356,6 +359,33 @@
                 'items-per-page-text': '',
               }"
             >
+              <template
+                v-slot:group.header="{ group, headers, toggle, isOpen }"
+              >
+                <td :colspan="headers.length">
+                  <v-btn
+                    @click="toggle"
+                    small
+                    icon
+                    :ref="group"
+                    :data-open="isOpen"
+                  >
+                    <v-icon v-if="isOpen">mdi-chevron-up</v-icon>
+                    <v-icon v-else>mdi-chevron-down</v-icon>
+                  </v-btn>
+                  {{ group }}
+                </td>
+              </template>
+              <template v-slot:expanded-item="{ headers, item }">
+                <td :colspan="headers.length">
+                  <div class="row">
+                    <div class="col">
+                      <h6>Details</h6>
+                      ... {{ item.name }}
+                    </div>
+                  </div>
+                </td>
+              </template>
               <template v-slot:item.sum="{ item }">
                 {{ item.sum }}
                 <v-icon small class="mr-2" @click.stop="editItem(item)">
@@ -983,6 +1013,14 @@ export default {
     },
   },
   methods: {
+    closeAll() {
+      Object.keys(this.$refs).forEach((k) => {
+        //console.log(this.$refs[k]);
+        if (this.$refs[k] && this.$refs[k].$attrs["data-open"]) {
+          this.$refs[k].$el.click();
+        }
+      });
+    },
     setBaer() {
       const baer = this.providers.find((p) => {
         return p.id == this.editedItem.provider_id;
@@ -1112,6 +1150,10 @@ export default {
         .get("api/ImportedProvLids/" + datefrom + "/" + dateto)
         .then(function (response) {
           self.importsProvLeads = response.data;
+          self.importsProvLeads = self.importsProvLeads.map((ip) => {
+            ip.group = ip.date + " " + ip.provider;
+            return ip;
+          });
           if (self.importsProvLeads) {
             let a_prov = _.uniq(
               _.map(self.importsProvLeads, (el) => {
@@ -1125,6 +1167,10 @@ export default {
               })
             );
           }
+          setTimeout(() => {
+            // wait and then close all groups
+            self.closeAll();
+          }, 300);
         })
         .catch(function (error) {
           console.log(error);
