@@ -218,7 +218,7 @@ export default {
     this.getOffices();
   },
   watch: {
-        selectedProvider: function (newval) {
+    selectedProvider: function (newval) {
       if (this.providers && this.providers.length && newval > 0) {
         let baer = this.providers.find((p) => {
           return p.id == newval;
@@ -229,7 +229,6 @@ export default {
         }
       }
     },
-
   },
   methods: {
     getOffices() {
@@ -472,6 +471,29 @@ export default {
         .catch((error) => console.log(error));
     },
     getUsers() {
+      let self = this;
+      axios
+        .get("/api/users")
+        .then((res) => {
+          self.users = res.data.map(
+            ({ name, id, role_id, fio, hmlids, group_id, office_id }) => ({
+              name,
+              id,
+              role_id,
+              fio,
+              hmlids,
+              group_id,
+              office_id,
+            })
+          );
+          self.loading = false;
+          self.group = _.filter(self.users, function (o) {
+            return o.group_id == o.id;
+          });
+        })
+        .catch((error) => console.log(error));
+    },
+    getUsers_del() {
       let self = this;
       this.loading = true;
       axios

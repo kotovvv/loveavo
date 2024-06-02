@@ -128,6 +128,40 @@ export default {
     },
     getUsers() {
       let self = this;
+      axios
+        .get("/api/users")
+        .then((res) => {
+          let data = res.data;
+          self.users = data.map(
+            ({
+              name,
+              id,
+              role_id,
+              fio,
+              hmlids,
+              group_id,
+              office_id,
+              level,
+            }) => ({
+              name,
+              id,
+              role_id,
+              fio,
+              hmlids,
+              group_id,
+              office_id,
+              level,
+            })
+          );
+          self.loading = false;
+          self.groups = _.filter(self.users, function (o) {
+            return o.group_id == o.id;
+          });
+        })
+        .catch((error) => console.log(error));
+    },
+    getUsers_del() {
+      let self = this;
       this.loading = true;
       axios
         .post("/api/getusers", [])

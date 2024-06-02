@@ -955,6 +955,7 @@ export default {
     lidsByOffice: [],
     offices: [],
     redistributeOffice: null,
+    expanded: [],
   }),
   watch: {
     selectedProvider: function (newval) {
@@ -1004,12 +1005,14 @@ export default {
       });
     },
     filter_importsProvLeads() {
-      return this.importsProvLeads.filter((i) => {
-        return (
-          this.filter_import_provider.length == 0 ||
-          this.filter_import_provider.includes(i.provider_id)
-        );
-      });
+      if (this.importsProvLeads.count) {
+        return this.importsProvLeads.filter((i) => {
+          return (
+            this.filter_import_provider.length == 0 ||
+            this.filter_import_provider.includes(i.provider_id)
+          );
+        });
+      }
     },
   },
   methods: {
@@ -1150,11 +1153,12 @@ export default {
         .get("api/ImportedProvLids/" + datefrom + "/" + dateto)
         .then(function (response) {
           self.importsProvLeads = response.data;
-          self.importsProvLeads = self.importsProvLeads.map((ip) => {
-            ip.group = ip.date + " " + ip.provider;
-            return ip;
-          });
+
           if (self.importsProvLeads) {
+            self.importsProvLeads = self.importsProvLeads.map((ip) => {
+              ip.group = ip.date + " " + ip.provider;
+              return ip;
+            });
             let a_prov = _.uniq(
               _.map(self.importsProvLeads, (el) => {
                 return el.provider_id;
@@ -1374,6 +1378,7 @@ export default {
           statuses: statuses,
         });
       });
+      self.holdLidsUsers = Object.entries(_.groupBy(self.leads, "user"));
       stord = Object.entries(_.groupBy(stord, "status"));
       stord.map(function (i) {
         //i[0]//name
@@ -1648,6 +1653,20 @@ export default {
         .catch((error) => console.log(error));
     },
     getUsers() {
+      let self = this;
+      axios
+        .get("/api/users")
+        .then((res) => {
+          self.users = res.data.map(({ name, id, role_id, fio }) => ({
+            name,
+            id,
+            role_id,
+            fio,
+          }));
+        })
+        .catch((error) => console.log(error));
+    },
+    getUsers_del() {
       let self = this;
 
       axios
