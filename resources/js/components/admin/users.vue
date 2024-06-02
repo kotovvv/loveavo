@@ -442,8 +442,8 @@ export default {
           self.users.map(function (u) {
             // u.role = self.roles.find((r) => r.id == u.role_id).name;
             self.rolename(u);
-            //if (u.role_id == 2)
-            self.group.push({ fio: u.fio, id: u.id, office_id: u.office_id });
+            if (u.role_id == 2)
+              self.group.push({ fio: u.fio, id: u.id, office_id: u.office_id });
             u.group = "";
             if (u.office_id != null) {
               u.office =
