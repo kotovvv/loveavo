@@ -856,15 +856,21 @@ export default {
       { text: "", value: "id", sortable: false },
     ],
     import_provider_headers: [
-      { text: "Дата", value: "start", sortable: false },
-      { text: "Поставщик", value: "provider", sortable: false },
-      { text: "Сумма", value: "sum", sortable: false },
-      { text: "L/A", value: "cp", sortable: false },
-      { text: "NEW", value: "hmnew", sortable: false },
-      { text: "CallBack", value: "hmcb", sortable: false },
-      { text: "Deposit", value: "hmdp", sortable: false },
-      { text: "Кол-во", value: "hm", sortable: false },
-      { text: "GEO", value: "geo", sortable: false },
+      { text: "Дата", value: "start", sortable: false, groupable: false },
+      {
+        text: "Поставщик",
+        value: "provider",
+        sortable: false,
+        groupable: false,
+      },
+      { text: "Сумма", value: "sum", sortable: false, groupable: false },
+      { text: "L/A", value: "cp", sortable: false, groupable: false },
+      { text: "NEW", value: "hmnew", sortable: false, groupable: false },
+      { text: "CallBack", value: "hmcb", sortable: false, groupable: false },
+      { text: "Deposit", value: "hmdp", sortable: false, groupable: false },
+      { text: "Кол-во", value: "hm", sortable: false, groupable: false },
+      { text: "GEO", value: "geo", sortable: false, groupable: false },
+      { text: "group", value: "group", sortable: false },
       // { text: "", value: "id" },
     ],
     duplicate_leads_headers: [
@@ -1006,6 +1012,10 @@ export default {
     },
     filter_importsProvLeads() {
       if (this.importsProvLeads.length) {
+        setTimeout(() => {
+          // wait and then close all groups
+          this.closeAll();
+        }, 800);
         return this.importsProvLeads.filter((i) => {
           return (
             this.filter_import_provider.length == 0 ||
@@ -1171,10 +1181,6 @@ export default {
               })
             );
           }
-          setTimeout(() => {
-            // wait and then close all groups
-            self.closeAll();
-          }, 300);
         })
         .catch(function (error) {
           console.log(error);
