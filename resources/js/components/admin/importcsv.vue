@@ -1005,7 +1005,7 @@ export default {
       });
     },
     filter_importsProvLeads() {
-      if (this.importsProvLeads.count) {
+      if (this.importsProvLeads.length) {
         return this.importsProvLeads.filter((i) => {
           return (
             this.filter_import_provider.length == 0 ||
